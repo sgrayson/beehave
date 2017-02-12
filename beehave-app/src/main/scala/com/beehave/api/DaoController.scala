@@ -5,7 +5,7 @@ import com.twitter.finatra.http.Controller
 
 import scala.util.parsing.json.JSON
 
-class LoggingController extends Controller {
+class DaoController extends Controller {
 
   private val mysqlClient = MysqlClient()
 

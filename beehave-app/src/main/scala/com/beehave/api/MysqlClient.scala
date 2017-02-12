@@ -8,11 +8,10 @@ object MysqlClient {
     val url = "jdbc:mysql://localhost:3306/beehave"
     val driver = "com.mysql.cj.jdbc.Driver"
     val username = "root"
-    val password = "DarkKnight2124661512"
 
     Class.forName(driver)
     new MysqlClient(
-      DriverManager.getConnection(url, username, password))
+      DriverManager.getConnection(url, username, ""))
   }
 }
 

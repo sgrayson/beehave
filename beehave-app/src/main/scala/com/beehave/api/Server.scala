@@ -10,7 +10,7 @@ class Server extends HttpServer {
   override def configureHttp(router: HttpRouter): Unit = {
     router
       .filter[CommonFilters]
-      .add[LoggingController]
+      .add[DaoController]
   }
 
   def test() = {
