@@ -1,19 +1,18 @@
 scala_library(
-	name = 'api',
-  	dependencies = [
-      '3rdparty/jvm/com/twitter/finatra-http',
-	  '3rdparty/jvm/mysql'
+    name = 'api',
+    dependencies = [
+        'beehave-app/src/main/scala/com/beehave/api/mysql',
     ],
-	sources=globs('*.scala')
+    sources=globs('*.scala')
 )
 
 jvm_binary(
-	name='bin',
+    name='bin',
     basename='server',
-	main='com.beehave.api.ServerMain',
-	dependencies = [
-		':api',
-	]
+    main='com.beehave.api.ServerMain',
+    dependencies = [
+        ':api',
+    ]
 )
 
 jvm_app(
@@ -21,5 +20,3 @@ jvm_app(
     basename='server-package-dist',
     binary=':bin'
 )
-
-

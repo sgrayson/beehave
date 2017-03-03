@@ -1,9 +1,8 @@
 package com.beehave.api
 
+import com.beehave.api.mysql._
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
-
-import scala.util.parsing.json.JSON
 
 class DaoController extends Controller {
 
@@ -18,19 +17,47 @@ class DaoController extends Controller {
     mysqlClient.getStudent(id)
   }
 
-  post("/student") { request: Request =>
-    val map = JSON.parseFull(request.getContentString)
-      .get.asInstanceOf[Map[String, String]]
-    val name = map.get("name").get
-    val grade = map.get("grade").get
-    mysqlClient.insertStudent(name, grade)
+  get("/students") { request: Request =>
+    mysqlClient.getStudents()
   }
 
-  post("/event") { request: Request =>
-    val map = JSON.parseFull(request.getContentString)
-      .get.asInstanceOf[Map[String, String]]
-    val label = map.get("label").get
-    val studentId = map.get("id").get.toInt
-    mysqlClient.insertStudentEvent(label, studentId)
+  post("/student") { request: Request =>
+    mysqlClient.insert(
+      Students.fromJson(request.getContentString))
   }
+
+  get("/teacher") { request: Request =>
+    val id = request.getParam("id").toInt
+    mysqlClient.getTeacher(id)
+  }
+
+  post("/teacher") { request: Request =>
+    mysqlClient.insert(
+      Teachers.fromJson(request.getContentString))
+  }
+
+  get("/class") { request: Request =>
+    val id = request.getParam("id").toInt
+    mysqlClient.getClass(id)
+  }
+
+  post("/class") { request: Request =>
+    mysqlClient.insert(
+      Classes.fromJson(request.getContentString))
+  }
+
+  post("/behavior") { request: Request =>
+    mysqlClient.insert(
+      Behaviors.fromJson(request.getContentString))
+  }
+
+  //TODO: add ability to search behaviors by date range
+
+//  post("/event") { request: Request =>
+//    val map = JSON.parseFull(request.getContentString)
+//      .get.asInstanceOf[Map[String, String]]
+//    val label = map.get("label").get
+//    val studentId = map.get("id").get.toInt
+//    mysqlClient.insertStudentEvent(label, studentId)
+//  }
 }

@@ -12,11 +12,4 @@ class Server extends HttpServer {
       .filter[CommonFilters]
       .add[DaoController]
   }
-
-  def test() = {
-    val mysqlClient = MysqlClient()
-    mysqlClient.insertStudent("Sean Grayson", "K")
-    mysqlClient.insertStudentEvent("test event", 1)
-    println(mysqlClient.getStudent(1))
-  }
 }
