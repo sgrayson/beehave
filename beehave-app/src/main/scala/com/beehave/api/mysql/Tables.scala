@@ -5,7 +5,6 @@ import java.sql.{Connection, Date, ResultSet, Timestamp}
 import scala.collection.mutable.ListBuffer
 import scala.util.parsing.json.JSON
 
-// TODO(BIG): add support for joins!
 // TODO: Make these classes more compact
 
 // Students Table
@@ -22,61 +21,47 @@ object Students {
       sex = map.get("sex"),
       ethnicity = map.get("ethnicity"),
       primaryDisability = map.get("primaryDisability"),
-      secondaryDisability = map.get("secondaryDisability"),
-      schedule = map.get("schedule"),
-      parentName = map.get("parentName"),
-      parentEmail = map.get("parentEmail"),
-      parentPhone = map.get("parentPhone"))
+      secondaryDisability = map.get("secondaryDisability"))
   }
 
   def fromSql(resultSet: ResultSet): Seq[Students] = {
     val students = ListBuffer[Students]()
     while (resultSet.next) {
       val student = Students(
+        id = Option(resultSet.getInt("id")),
         name = Option(resultSet.getString("name")),
         age = Option(resultSet.getInt("age")),
         grade = Option(resultSet.getString("grade")),
         sex = Option(resultSet.getString("sex")),
         ethnicity = Option(resultSet.getString("ethnicity")),
         primaryDisability = Option(resultSet.getString("primary_disability")),
-        secondaryDisability = Option(resultSet.getString("secondary_disability")),
-        schedule = Option(resultSet.getString("schedule")),
-        parentName = Option(resultSet.getString("parent_name")),
-        parentEmail = Option(resultSet.getString("parent_email")),
-        parentPhone = Option(resultSet.getString("parent_phone")))
+        secondaryDisability = Option(resultSet.getString("secondary_disability")))
       students.append(student)
     }
     students
   }
 }
 case class Students(
+   id: Option[Int] = None,
    name: Option[String] = None,
    age: Option[Int] = None,
    grade: Option[String] = None,
    sex: Option[String] = None,
    ethnicity: Option[String] = None,
    primaryDisability: Option[String] = None,
-   secondaryDisability: Option[String] = None,
-   //TODO: schedule will need to be Map[Int,String] => (Period, Class)
-   schedule: Option[String] = None,
-   parentName: Option[String] = None,
-   parentEmail: Option[String] = None,
-   parentPhone: Option[String] = None) extends Table {
+   secondaryDisability: Option[String] = None) extends Table {
 
-  override val tableName = "students"
+  override val tableName = Students.tableName
 
   override val map = Map[String, Option[String]](
+    "id" -> int(id),
     "name" -> string(name),
     "age" -> int(age),
     "grade" -> string(grade),
     "sex" -> string(sex),
     "ethnicity" -> string(ethnicity),
     "primary_disability" -> string(primaryDisability),
-    "secondary_disability" -> string(secondaryDisability),
-    "schedule" -> string(schedule),
-    "parent_name" -> string(parentName),
-    "parent_email" -> string(parentEmail),
-    "parent_phone" -> string(parentPhone))
+    "secondary_disability" -> string(secondaryDisability))
 }
 
 // Teachers Table
@@ -96,6 +81,7 @@ object Teachers {
     val teachers = ListBuffer[Teachers]()
     while (resultSet.next) {
       val teacher = Teachers(
+        id = Option(resultSet.getInt("id")),
         name = Option(resultSet.getString("name")),
         email = Option(resultSet.getString("email")),
         phone = Option(resultSet.getString("phone")))
@@ -105,13 +91,15 @@ object Teachers {
   }
 }
 case class Teachers(
+   id: Option[Int] = None,
    name: Option[String] = None,
    email: Option[String] = None,
    phone: Option[String] = None) extends Table {
 
-  override val tableName = "teachers"
+  override val tableName = Teachers.tableName
 
   override val map = Map[String, Option[String]](
+    "id" -> int(id),
     "name" -> string(name),
     "email" -> string(email),
     "phone" -> string(phone))
@@ -130,75 +118,127 @@ object Classes {
       location = map.get("location"),
       days = map.get("days"),
       startTime = map.get("startTime"),
-      endTime = map.get("endTime"))
+      endTime = map.get("endTime"),
+      teacherId = map.get("teacherId").map(_.toInt))
   }
 
   def fromSql(resultSet: ResultSet): Seq[Classes] = {
     val classes = ListBuffer[Classes]()
     while (resultSet.next) {
       val cls = Classes(
+        id = Option(resultSet.getInt("id")),
         name = Option(resultSet.getString("name")),
         subject = Option(resultSet.getString("subject")),
         location = Option(resultSet.getString("location")),
         days = Option(resultSet.getString("days")),
         startTime = Option(resultSet.getString("startTime")),
-        endTime = Option(resultSet.getString("endTime")))
+        endTime = Option(resultSet.getString("endTime")),
+        teacherId = Option(resultSet.getInt("teacherId")))
       classes.append(cls)
     }
     classes
   }
 }
 case class Classes(
+   id: Option[Int] = None,
    name: Option[String] = None,
    subject: Option[String] = None,
    location: Option[String] = None,
    days: Option[String] = None,
    startTime: Option[String] = None,
    endTime: Option[String] = None,
-   teacher: Option[Teachers] = None) extends Table {
+   teacherId: Option[Int] = None) extends Table {
 
-  override val tableName = "classes"
+  override val tableName = Classes.tableName
 
   override val map = Map[String, Option[String]](
+    "id" -> int(id),
     "name" -> string(name),
     "subject" -> string(subject),
     "location" -> string(location),
     "days" -> string(days),
-    "startTime" -> string(startTime),
-    "endTime" -> string(endTime))
+    "start_time" -> string(startTime),
+    "end_time" -> string(endTime),
+    "teacher_id" -> int(teacherId))
 }
 
 object Behaviors {
   val tableName = "behaviors"
 
-  //TODO
   def fromJson(jsonString: String): Behaviors = {
-    Behaviors()
+    val map = JSON.parseFull(jsonString)
+      .get.asInstanceOf[Map[String, String]]
+    Behaviors(
+      name = map.get("name"),
+      thumbnail = map.get("thumbnail"))
   }
 
   def fromSql(resultSet: ResultSet): Seq[Behaviors] = {
     val behaviors = ListBuffer[Behaviors]()
     while (resultSet.next) {
       val behavior = Behaviors(
+        id = Option(resultSet.getInt("id")),
         name = Option(resultSet.getString("name")),
-        timestamp = Option(resultSet.getTimestamp("timestamp")),
-        location = Option(resultSet.getString("location")))
+        thumbnail = Option(resultSet.getString("thumbnail")))
       behaviors.append(behavior)
     }
     behaviors
   }
 }
 case class Behaviors(
+   id: Option[Int] = None,
    name: Option[String] = None,
-   timestamp: Option[Timestamp] = None,
-   location: Option[String] = None) extends Table {
+   thumbnail: Option[String] = None) extends Table {
 
-  override val tableName = "behaviors"
+  override val tableName = Behaviors.tableName
 
   override val map = Map[String, Option[String]](
+    "id" -> int(id),
     "name" -> string(name),
-    "timestamp" -> timestamp(timestamp),
-    "location" -> string(location))
+    "thumbnail" -> string(thumbnail))
+}
+
+object BehaviorEvents {
+  val tableName = "behavior_events"
+
+  def fromJson(jsonString: String): BehaviorEvents = {
+    val map = JSON.parseFull(jsonString)
+      .get.asInstanceOf[Map[String, String]]
+    BehaviorEvents(
+      location = map.get("location"),
+      increment = map.get("increment").map(_.toInt),
+      studentId = map.get("studentId").map(_.toInt),
+      behaviorId = map.get("behaviorId").map(_.toInt))
+  }
+
+  def fromSql(resultSet: ResultSet): Seq[BehaviorEvents] = {
+    val behaviors = ListBuffer[BehaviorEvents]()
+    while (resultSet.next) {
+      val behavior = BehaviorEvents(
+        timestamp = Option(resultSet.getTimestamp("timestamp")),
+        location = Option(resultSet.getString("location")),
+        increment = Option(resultSet.getInt("increment")),
+        studentId = Option(resultSet.getInt("student_id")),
+        behaviorId = Option(resultSet.getInt("behavior_id")))
+      behaviors.append(behavior)
+    }
+    behaviors
+  }
+}
+case class BehaviorEvents(
+   timestamp: Option[Timestamp] = None,
+   location: Option[String] = None,
+   increment: Option[Int] = None,
+   studentId: Option[Int] = None,
+   behaviorId: Option[Int] = None) extends Table {
+
+  override val tableName = BehaviorEvents.tableName
+
+  override val map = Map[String, Option[String]](
+    "location" -> string(location),
+    "increment" -> int(increment),
+    "student_id" -> int(studentId),
+    "behavior_id" -> int(behaviorId))
 }
 
 trait Table {
@@ -226,12 +266,6 @@ trait Table {
   def date(dt: Option[Date]) = dt.map(_.toString)
 }
 
-/**
-  * TODO: Divide this class out into parts, and add ability for
-  * joins to take in another Statement
-  *
-  * Query and Write methods will convert parts into sql string to execute
-  */
 object Statement {
   def apply() = new Statement()
 }
@@ -262,7 +296,16 @@ class Statement {
     this
   }
 
-  //TODO: simple where clause for now
+  def prepareQuery(table: Table) = {
+    val keyValues = table.getKeyValuesMap
+      .map{ case (key, value) => key + " = " + value }
+      .reduce(_ + " AND " + _)
+    val query = s"SELECT * FROM ${table.tableName}" +
+      s" WHERE ${keyValues}"
+    assign(query)
+    this
+  }
+
   def where(id: Int) = {
     val whereClause = s" WHERE id = ${id}"
     append(whereClause)

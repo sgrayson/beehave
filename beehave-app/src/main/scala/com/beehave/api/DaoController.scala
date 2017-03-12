@@ -36,10 +36,10 @@ class DaoController extends Controller {
       Teachers.fromJson(request.getContentString))
   }
 
-  get("/class") { request: Request =>
-    val id = request.getParam("id").toInt
-    mysqlClient.getClass(id)
-  }
+//  get("/class") { request: Request =>
+//    val id = request.getParam("ids").toInt
+//    mysqlClient.getClasses(id)
+//  }
 
   post("/class") { request: Request =>
     mysqlClient.insert(
@@ -49,6 +49,11 @@ class DaoController extends Controller {
   post("/behavior") { request: Request =>
     mysqlClient.insert(
       Behaviors.fromJson(request.getContentString))
+  }
+
+  post("/behavior_event") { request: Request =>
+    mysqlClient.insert(
+      BehaviorEvents.fromJson(request.getContentString))
   }
 
   //TODO: add ability to search behaviors by date range

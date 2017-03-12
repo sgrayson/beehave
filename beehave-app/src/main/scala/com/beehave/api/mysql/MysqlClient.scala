@@ -6,14 +6,13 @@ import com.twitter.util.{Closable, Future, Time}
 
 object MysqlClient {
   def apply() = {
-    val url = "jdbc:mysql://localhost:3306/beehave"
+    val url = "otter.ccgy641sf6dg.us-west-2.rds.amazonaws.com:3306/otter"
     val driver = "com.mysql.cj.jdbc.Driver"
-    val username = "root"
-    val password = "DarkKnight2124661512"
+    val username = "sgrayson"
 
     Class.forName(driver)
     new MysqlClient(
-      DriverManager.getConnection(url, username, password))
+      DriverManager.getConnection(url, username, ""))
   }
 }
 
@@ -46,6 +45,13 @@ class MysqlClient(conn: Connection) extends Closable {
       .prepareInsert(teacher)
       .write(conn)
   }
+  def getTeachers(ids: Seq[Int]): Seq[Teachers] = {
+    Statement()
+      .prepareQuery(Teachers.tableName)
+      .where(ids)
+      .query(conn, Teachers.fromSql)
+      .map(_.asInstanceOf[Teachers])
+  }
   def getTeacher(id: Int): Option[Teachers] = {
     Statement()
       .prepareQuery(Teachers.tableName)
@@ -61,12 +67,11 @@ class MysqlClient(conn: Connection) extends Closable {
       .prepareInsert(cls)
       .write(conn)
   }
-  def getClass(id: Int): Option[Classes] = {
+  def getClasses(ids: Seq[Int]): Seq[Classes] = {
     Statement()
       .prepareQuery(Classes.tableName)
-      .where(id)
+      .where(ids)
       .query(conn, Classes.fromSql)
-      .headOption
       .map(_.asInstanceOf[Classes])
   }
 
@@ -75,6 +80,33 @@ class MysqlClient(conn: Connection) extends Closable {
     Statement()
       .prepareInsert(behavior)
       .write(conn)
+  }
+  def getBehavior(id: Int): Option[Behaviors] = {
+    Statement()
+      .prepareQuery(Behaviors.tableName)
+      .where(id)
+      .query(conn, Behaviors.fromSql)
+      .headOption
+      .map(_.asInstanceOf[Behaviors])
+  }
+  def getBehaviors(): Seq[Behaviors] = {
+    Statement()
+      .prepareQuery(Behaviors.tableName)
+      .query(conn, Behaviors.fromSql)
+      .map(_.asInstanceOf[Behaviors])
+  }
+
+  //Behavior Events
+  def insert(behaviorEvent: BehaviorEvents) = {
+    Statement()
+      .prepareInsert(behaviorEvent)
+      .write(conn)
+  }
+  def getBehaviorEventsForStudent(id: Int): Seq[BehaviorEvents] = {
+    Statement()
+      .prepareQuery(BehaviorEvents(studentId = Some(id)))
+      .query(conn, BehaviorEvents.fromSql)
+      .map(_.asInstanceOf[BehaviorEvents])
   }
 
   def close(deadline: Time) = {
