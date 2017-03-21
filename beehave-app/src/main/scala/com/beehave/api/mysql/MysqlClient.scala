@@ -2,17 +2,28 @@ package com.beehave.api.mysql
 
 import java.sql.{Connection, DriverManager}
 
+import com.beehave.api.util.ConfigParser
 import com.twitter.util.{Closable, Future, Time}
 
 object MysqlClient {
-  def apply() = {
-    val url = "otter.ccgy641sf6dg.us-west-2.rds.amazonaws.com:3306/otter"
+
+  val BaseName = "mysql"
+
+  def apply(config: ConfigParser) = {
+    val configMap = config.configMap.get(BaseName)
+
+    val host = configMap.get("host")
+    val port = configMap.get("port")
+    val database = configMap.get("database")
+    val user = configMap.get("user")
+    val password = configMap.get("password")
+
+    val url = s"jdbc:mysql://${host}:${port}/${database}"
     val driver = "com.mysql.cj.jdbc.Driver"
-    val username = "sgrayson"
 
     Class.forName(driver)
     new MysqlClient(
-      DriverManager.getConnection(url, username, ""))
+      DriverManager.getConnection(url, user, password))
   }
 }
 

@@ -2,6 +2,7 @@ scala_library(
     name = 'api',
     dependencies = [
         'beehave-app/src/main/scala/com/beehave/api/mysql',
+        'beehave-app/src/main/scala/com/beehave/api/util',
     ],
     sources=globs('*.scala')
 )

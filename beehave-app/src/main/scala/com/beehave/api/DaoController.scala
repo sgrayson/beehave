@@ -1,12 +1,15 @@
 package com.beehave.api
 
+import javax.inject.Inject
+
 import com.beehave.api.mysql._
+import com.beehave.api.util.ConfigParser
 import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
 
-class DaoController extends Controller {
+class DaoController @Inject() (config: ConfigParser) extends Controller {
 
-  private val mysqlClient = MysqlClient()
+  private val mysqlClient = MysqlClient(config)
 
   get("/test") { request: Request =>
     "Hello World"
@@ -36,19 +39,13 @@ class DaoController extends Controller {
       Teachers.fromJson(request.getContentString))
   }
 
-//  get("/class") { request: Request =>
-//    val id = request.getParam("ids").toInt
-//    mysqlClient.getClasses(id)
-//  }
-
-  post("/class") { request: Request =>
-    mysqlClient.insert(
-      Classes.fromJson(request.getContentString))
-  }
-
   post("/behavior") { request: Request =>
     mysqlClient.insert(
       Behaviors.fromJson(request.getContentString))
+  }
+
+  get("/behavior") { request: Request =>
+    mysqlClient.getBehaviors()
   }
 
   post("/behavior_event") { request: Request =>
@@ -56,13 +53,10 @@ class DaoController extends Controller {
       BehaviorEvents.fromJson(request.getContentString))
   }
 
-  //TODO: add ability to search behaviors by date range
+  get("behavior_events") { request: Request =>
+    val studentId = request.getParam("studentId").toInt
+    mysqlClient.getBehaviorEventsForStudent(studentId)
+  }
 
-//  post("/event") { request: Request =>
-//    val map = JSON.parseFull(request.getContentString)
-//      .get.asInstanceOf[Map[String, String]]
-//    val label = map.get("label").get
-//    val studentId = map.get("id").get.toInt
-//    mysqlClient.insertStudentEvent(label, studentId)
-//  }
+  //TODO: add ability to search behaviors by date range
 }
