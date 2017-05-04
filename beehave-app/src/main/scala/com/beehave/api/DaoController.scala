@@ -17,16 +17,18 @@ class DaoController @Inject() (config: ConfigParser) extends Controller {
 
   get("/student") { request: Request =>
     val id = request.getParam("id").toInt
-    mysqlClient.getStudent(id)
+    val deviceId = request.getParam("deviceId")
+    mysqlClient.getStudent(id, deviceId)
   }
 
   get("/students") { request: Request =>
-    mysqlClient.getStudents()
+    val deviceId = request.getParam("deviceId")
+    mysqlClient.getStudents(deviceId)
   }
 
   post("/student") { request: Request =>
-    mysqlClient.insert(
-      Students.fromJson(request.getContentString))
+    mysqlClient.write(
+      StudentViews.fromJson(request.getContentString))
   }
 
   get("/teacher") { request: Request =>

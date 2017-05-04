@@ -29,25 +29,32 @@ object MysqlClient {
 
 class MysqlClient(conn: Connection) extends Closable {
 
-  // Students
-  def insert(student: Students) = {
-    Statement()
-      .prepareInsert(student)
-      .write(conn)
+  // Student Views
+  def write(student: StudentViews) = {
+    if (student.id.isDefined) {
+      Statement()
+        .prepareUpdate(student)
+        .where(student.id.get)
+        .write(conn)
+    } else {
+      Statement()
+        .prepareInsert(student)
+        .write(conn)
+    }
   }
-  def getStudent(id: Int): Option[Students] = {
+  def getStudent(id: Int, deviceId: String): Option[StudentViews] = {
     Statement()
-      .prepareQuery(Students.tableName)
+      .prepareQuery(StudentViews(id = Some(id), deviceId = Some(deviceId)))
       .where(id)
-      .query(conn, Students.fromSql)
+      .query(conn, StudentViews.fromSql)
       .headOption
-      .map(_.asInstanceOf[Students])
+      .map(_.asInstanceOf[StudentViews])
   }
-  def getStudents(): Seq[Students] = {
+  def getStudents(deviceId: String): Seq[StudentViews] = {
     Statement()
-      .prepareQuery(Students.tableName)
-      .query(conn, Students.fromSql)
-      .map(_.asInstanceOf[Students])
+      .prepareQuery(StudentViews(deviceId = Some(deviceId)))
+      .query(conn, StudentViews.fromSql)
+      .map(_.asInstanceOf[StudentViews])
   }
 
   // Teachers

@@ -7,33 +7,41 @@ import scala.util.parsing.json.JSON
 
 // TODO: Make these classes more compact
 
-// Students Table
-object Students {
-  val tableName = "students"
+// StudentViews Table
+object StudentViews {
+  val tableName = "student_views"
 
-  def fromJson(jsonString: String): Students = {
+  def fromJson(jsonString: String): StudentViews = {
     val map = JSON.parseFull(jsonString)
       .get.asInstanceOf[Map[String, String]]
-    Students(
+    StudentViews(
+      deviceId = map.get("deviceId"),
       name = map.get("name"),
       age = map.get("age").map(_.toInt),
       grade = map.get("grade"),
+      imageUrl = map.get("imageUrl"),
       sex = map.get("sex"),
       ethnicity = map.get("ethnicity"),
+      targetBehavior = map.get("targetBehavior"),
+      replacementBehavior = map.get("replacementBehavior"),
       primaryDisability = map.get("primaryDisability"),
       secondaryDisability = map.get("secondaryDisability"))
   }
 
-  def fromSql(resultSet: ResultSet): Seq[Students] = {
-    val students = ListBuffer[Students]()
+  def fromSql(resultSet: ResultSet): Seq[StudentViews] = {
+    val students = ListBuffer[StudentViews]()
     while (resultSet.next) {
-      val student = Students(
+      val student = StudentViews(
         id = Option(resultSet.getInt("id")),
+        deviceId = Option(resultSet.getString("device_id")),
         name = Option(resultSet.getString("name")),
         age = Option(resultSet.getInt("age")),
         grade = Option(resultSet.getString("grade")),
+        imageUrl = Option(resultSet.getString("image_url")),
         sex = Option(resultSet.getString("sex")),
         ethnicity = Option(resultSet.getString("ethnicity")),
+        targetBehavior = Option(resultSet.getString("target_behavior")),
+        replacementBehavior = Option(resultSet.getString("replacement_behavior")),
         primaryDisability = Option(resultSet.getString("primary_disability")),
         secondaryDisability = Option(resultSet.getString("secondary_disability")))
       students.append(student)
@@ -41,25 +49,33 @@ object Students {
     students
   }
 }
-case class Students(
+case class StudentViews(
    id: Option[Int] = None,
+   deviceId: Option[String] = None,
    name: Option[String] = None,
+   imageUrl: Option[String] = None,
    age: Option[Int] = None,
    grade: Option[String] = None,
    sex: Option[String] = None,
+   targetBehavior: Option[String] = None,
+   replacementBehavior: Option[String] = None,
    ethnicity: Option[String] = None,
    primaryDisability: Option[String] = None,
    secondaryDisability: Option[String] = None) extends Table {
 
-  override val tableName = Students.tableName
+  override val tableName = StudentViews.tableName
 
   override val map = Map[String, Option[String]](
     "id" -> int(id),
+    "deviceId" -> string(deviceId),
     "name" -> string(name),
+    "image_url" -> string(imageUrl),
     "age" -> int(age),
     "grade" -> string(grade),
     "sex" -> string(sex),
     "ethnicity" -> string(ethnicity),
+    "target_behavior" -> string(targetBehavior),
+    "replacement_behavior" -> string(replacementBehavior),
     "primary_disability" -> string(primaryDisability),
     "secondary_disability" -> string(secondaryDisability))
 }
