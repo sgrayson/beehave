@@ -51,14 +51,12 @@ class DaoController @Inject() (config: ConfigParser) extends Controller {
   }
 
   post("/behavior_event") { request: Request =>
-    mysqlClient.insert(
+    mysqlClient.write(
       BehaviorEvents.fromJson(request.getContentString))
   }
 
   get("behavior_events") { request: Request =>
-    val studentId = request.getParam("studentId").toInt
-    mysqlClient.getBehaviorEventsForStudent(studentId)
+    val studentViewId = request.getParam("studentViewId").toInt
+    mysqlClient.getBehaviorEventsForStudent(studentViewId)
   }
-
-  //TODO: add ability to search behaviors by date range
 }

@@ -115,14 +115,15 @@ class MysqlClient(conn: Connection) extends Closable {
   }
 
   //Behavior Events
-  def insert(behaviorEvent: BehaviorEvents) = {
+  def write(behaviorEvent: BehaviorEvents) = {
     Statement()
       .prepareInsert(behaviorEvent)
       .write(conn)
   }
+  //TODO(sgrayson): edit this to take in timestamp query
   def getBehaviorEventsForStudent(id: Int): Seq[BehaviorEvents] = {
     Statement()
-      .prepareQuery(BehaviorEvents(studentId = Some(id)))
+      .prepareQuery(BehaviorEvents(studentViewId = Some(id)))
       .query(conn, BehaviorEvents.fromSql)
       .map(_.asInstanceOf[BehaviorEvents])
   }

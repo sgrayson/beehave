@@ -67,7 +67,7 @@ case class StudentViews(
 
   override val map = Map[String, Option[String]](
     "id" -> int(id),
-    "deviceId" -> string(deviceId),
+    "device_id" -> string(deviceId),
     "name" -> string(name),
     "image_url" -> string(imageUrl),
     "age" -> int(age),
@@ -221,10 +221,10 @@ object BehaviorEvents {
     val map = JSON.parseFull(jsonString)
       .get.asInstanceOf[Map[String, String]]
     BehaviorEvents(
+      name = map.get("name"),
       location = map.get("location"),
       increment = map.get("increment").map(_.toInt),
-      studentId = map.get("studentId").map(_.toInt),
-      behaviorId = map.get("behaviorId").map(_.toInt))
+      studentViewId = map.get("studentViewId").map(_.toInt))
   }
 
   def fromSql(resultSet: ResultSet): Seq[BehaviorEvents] = {
@@ -232,10 +232,10 @@ object BehaviorEvents {
     while (resultSet.next) {
       val behavior = BehaviorEvents(
         timestamp = Option(resultSet.getTimestamp("timestamp")),
+        name = Option(resultSet.getString("name")),
         location = Option(resultSet.getString("location")),
         increment = Option(resultSet.getInt("increment")),
-        studentId = Option(resultSet.getInt("student_id")),
-        behaviorId = Option(resultSet.getInt("behavior_id")))
+        studentViewId = Option(resultSet.getInt("student_view_id")))
       behaviors.append(behavior)
     }
     behaviors
@@ -243,18 +243,18 @@ object BehaviorEvents {
 }
 case class BehaviorEvents(
    timestamp: Option[Timestamp] = None,
+   name: Option[String] = None,
    location: Option[String] = None,
    increment: Option[Int] = None,
-   studentId: Option[Int] = None,
-   behaviorId: Option[Int] = None) extends Table {
+   studentViewId: Option[Int] = None) extends Table {
 
   override val tableName = BehaviorEvents.tableName
 
   override val map = Map[String, Option[String]](
+    "name" -> string(name),
     "location" -> string(location),
     "increment" -> int(increment),
-    "student_id" -> int(studentId),
-    "behavior_id" -> int(behaviorId))
+    "student_view_id" -> int(studentViewId))
 }
 
 trait Table {
